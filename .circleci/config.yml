@@ -8,7 +8,6 @@ jobs:
             - checkout
             - run: |
                 /opt/docker/bin/entrypoint /bin/bash << EOF
-                set -x
                 conda config --add channels conda-forge
                 conda update conda conda-build
                 mkdir packages
@@ -27,12 +26,11 @@ jobs:
             - checkout
             - run: |
                 /opt/docker/bin/entrypoint /bin/bash << EOF
-                set -x
                 conda config --add channels conda-forge
                 conda update conda conda-build
                 mkdir packages
                 conda-build conda --python=36
-                cp $(/opt/docker/bin/entrypoint /bin/bash -c 'conda-build conda --python=27 --output') packages
+                cp $(/opt/docker/bin/entrypoint /bin/bash -c 'conda-build conda --python=36 --output') packages
                 EOF
             - persist_to_workspace:
                 root: .
