@@ -1,2 +1,15 @@
+engines:
+    pep8:
+        enabled: true
+    duplication:
+        enabled: true
+        config:
+            languages:
+                - python
+    fixme:
+        enabled: true
+    radon:
+        enabled: true
+
 exclude_paths:
     - docs/_build/**/*
