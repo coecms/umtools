@@ -12,8 +12,9 @@ jobs:
                 conda config --add channels conda-forge
                 conda update conda conda-build
                 mkdir packages
+                PACKAGE=$(/opt/conda/bin/conda-build conda --python=27 --output)
                 conda-build conda --python=27
-                cp $(/opt/conda/bin/conda-build conda --python=27 --output) packages
+                cp $PACKAGE packages
                 EOF
             - persist_to_workspace:
                 root: .
@@ -31,8 +32,9 @@ jobs:
                 conda config --add channels conda-forge
                 conda update conda conda-build
                 mkdir packages
+                PACKAGE=$(/opt/conda/bin/conda-build conda --python=36 --output)
                 conda-build conda --python=36
-                cp $(/opt/conda/bin/conda-build conda --python=36 --output) packages
+                cp $PACKAGE packages
                 EOF
             - persist_to_workspace:
                 root: .
