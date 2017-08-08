@@ -7,6 +7,7 @@ jobs:
         steps:
             - checkout
             - run: |
+                set -x
                 /opt/docker/bin/entrypoint /bin/bash << EOF
                 conda config --add channels conda-forge
                 conda update conda conda-build
@@ -25,6 +26,7 @@ jobs:
         steps:
             - checkout
             - run: |
+                set -x
                 /opt/docker/bin/entrypoint /bin/bash << EOF
                 conda config --add channels conda-forge
                 conda update conda conda-build
@@ -36,7 +38,7 @@ jobs:
                 root: .
                 paths: packages/*
 
-    deploy:
+    conda_upload:
         working_directory: /conda-build
         docker:
             - image: condaforge/linux-anvil
@@ -50,11 +52,11 @@ jobs:
 
 workflows:
     version: 2
-    build_and_test:
+    conda_build_and_upload:
         jobs:
             - python27
             - python36
-            - deploy:
+            - conda_upload:
                 requires:
                     - python27
                     - python36
