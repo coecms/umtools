@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # Copyright 2017 ARC Centre of Excellence for Climate Systems Science
 # author: Scott Wales <scott.wales@unimelb.edu.au>
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,25 @@ import subprocess
 import tempfile
 import argparse
 import os
+
+var_names = {
+    301 : 'qflux',
+    302 : 'mask',
+    303 : 'heat',
+    304 : 'taux',
+    305 : 'sst',
+    306 : 'pat'
+}
+
+long_names = {
+    301 : 'flux correction',
+    302 : 'sea mask',
+    303 : 'flux climatology',
+    304 : 'zonal wind climatology',
+    305 : 'sea surface temperature',
+    306 : 'recharge oscillator pattern'
+}
+
 
 def main():
     parser = argparse.ArgumentParser(description="Convert a slab ocean ancillary file to either netcdf or um format")
@@ -53,11 +72,16 @@ def main():
 
         try:
             to_um(args.input, outfile)
-        except Exception:
+        except Exception as e:
             print("Unable to convert %s to UM format"%args.input)
+#            raise e
 
 def to_netcdf(infile, outfile):
     cubes = iris.load(infile)
+    for cube in cubes:
+        secitem = cube.attributes['STASH'].section * 1000 + cube.attributes['STASH'].item
+        cube.var_name = var_names[secitem]
+        cube.long_name = long_names[secitem]
     iris.fileformats.netcdf.save(cubes, outfile)
 
 def to_um(infile, outfile):
@@ -143,42 +167,42 @@ def to_um(infile, outfile):
   IAUSRANCIL_FILEINID(1) = 1,
   IAUSRANCIL_STASHCODE(1) = 301,
   IAUSRANCIL_PPCODE(1) = 0,
-  AUSRANCIL_NCNAME(1) = "unknown",
+  AUSRANCIL_NCNAME(1) = "%(var_name301)s",
   IAUSRANCIL_DATATYPE(1) = 1,
   IAUSRANCIL_MASKTYPE(1) = 0,
   IAUSRANCIL_MASK(1) = 0,
   IAUSRANCIL_FILEINID(2) = 1,
   IAUSRANCIL_STASHCODE(2) = 302,
   IAUSRANCIL_PPCODE(2) = 0,
-  AUSRANCIL_NCNAME(2) = "unknown_0",
+  AUSRANCIL_NCNAME(2) = "%(var_name302)s",
   IAUSRANCIL_DATATYPE(2) = 1,
   IAUSRANCIL_MASKTYPE(2) = 0,
   IAUSRANCIL_MASK(2) = 0,
   IAUSRANCIL_FILEINID(3) = 1,
   IAUSRANCIL_STASHCODE(3) = 303,
   IAUSRANCIL_PPCODE(3) = 0,
-  AUSRANCIL_NCNAME(3) = "unknown_1",
+  AUSRANCIL_NCNAME(3) = "%(var_name303)s",
   IAUSRANCIL_DATATYPE(3) = 1,
   IAUSRANCIL_MASKTYPE(3) = 0,
   IAUSRANCIL_MASK(3) = 0,
   IAUSRANCIL_FILEINID(4) = 1,
   IAUSRANCIL_STASHCODE(4) = 304,
   IAUSRANCIL_PPCODE(4) = 0,
-  AUSRANCIL_NCNAME(4) = "unknown_2",
+  AUSRANCIL_NCNAME(4) = "%(var_name304)s",
   IAUSRANCIL_DATATYPE(4) = 1,
   IAUSRANCIL_MASKTYPE(4) = 0,
   IAUSRANCIL_MASK(4) = 0,
   IAUSRANCIL_FILEINID(5) = 1,
   IAUSRANCIL_STASHCODE(5) = 305,
   IAUSRANCIL_PPCODE(5) = 0,
-  AUSRANCIL_NCNAME(5) = "unknown_3",
+  AUSRANCIL_NCNAME(5) = "%(var_name305)s",
   IAUSRANCIL_DATATYPE(5) = 1,
   IAUSRANCIL_MASKTYPE(5) = 0,
   IAUSRANCIL_MASK(5) = 0,
   IAUSRANCIL_FILEINID(6) = 1,
   IAUSRANCIL_STASHCODE(6) = 306,
   IAUSRANCIL_PPCODE(6) = 0,
-  AUSRANCIL_NCNAME(6) = "unknown_4",
+  AUSRANCIL_NCNAME(6) = "%(var_name306)s",
   IAUSRANCIL_DATATYPE(6) = 1,
   IAUSRANCIL_MASKTYPE(6) = 0,
   IAUSRANCIL_MASK(6) = 0,
@@ -205,7 +229,14 @@ def to_um(infile, outfile):
 
  /
 
-        """%{'infile': infile, 'outfile': outfile}
+        """%{'infile': infile, 'outfile': outfile,
+             'var_name301' : var_names[301],
+             'var_name302' : var_names[302],
+             'var_name303' : var_names[303],
+             'var_name304' : var_names[304],
+             'var_name305' : var_names[305],
+             'var_name306' : var_names[306]
+             }
 
         namelist.write(content)
         namelist.flush()
