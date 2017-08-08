@@ -46,7 +46,7 @@ jobs:
             - run: |
                 /opt/docker/bin/entrypoint /bin/bash << EOF
                 set -x
-                anaconda upload --token \$ANACONDA_TOKEN --user \$ANACONDA_USER /workspace/packages/*
+                anaconda -t \$ANACONDA_TOKEN upload --user \$ANACONDA_USER /workspace/packages/*
                 EOF
 
 workflows:
