@@ -52,8 +52,14 @@ workflows:
     version: 2
     conda_build_and_upload:
         jobs:
-            - python27
-            - python36
+            - python27:
+                filters:
+                    tags:
+                        only: /.*/
+            - python36:
+                filters:
+                    tags:
+                        only: /.*/
             - conda_upload:
                 requires:
                     - python27
