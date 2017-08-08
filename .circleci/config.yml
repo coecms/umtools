@@ -35,6 +35,9 @@ jobs:
                 paths: packages/*
 
     deploy:
+        working_directory: /conda-build
+        docker:
+            - image: condaforge/linux-anvil
         steps:
             - attach_workspace:
                 at: /packages
