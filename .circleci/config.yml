@@ -12,7 +12,7 @@ jobs:
                 conda config --add channels conda-forge
                 conda update conda conda-build
                 mkdir packages
-                PACKAGE=$(/opt/conda/bin/conda-build conda --python=27 --output)
+                PACKAGE=$(/opt/docker/bin/entrypoint /bin/bash -c 'conda-build conda --python=27 --output')
                 conda-build conda --python=27
                 cp $PACKAGE packages
                 EOF
@@ -32,7 +32,7 @@ jobs:
                 conda config --add channels conda-forge
                 conda update conda conda-build
                 mkdir packages
-                PACKAGE=$(/opt/conda/bin/conda-build conda --python=36 --output)
+                PACKAGE=$(/opt/docker/bin/entrypoint /bin/bash -c 'conda-build conda --python=36 --output')
                 conda-build conda --python=36
                 cp $PACKAGE packages
                 EOF
