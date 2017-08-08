@@ -27,8 +27,18 @@ jobs:
         steps:
             - checkout
             - run: |
-                set -x
                 /opt/docker/bin/entrypoint /bin/bash << EOF
+                set -x
+                conda config --add channels conda-forge
+                conda update conda conda-build
+                mkdir packages
+                PACKAGE=$(/opt/docker/bin/entrypoint /bin/bash -c 'conda-build conda --python=36 --output')
+                conda-build conda --python=36
+                cp $PACKAGE packages
+                EOF
+            - run: |
+                /opt/docker/bin/entrypoint /bin/bash << EOF
+                set -x
                 conda config --add channels conda-forge
                 conda update conda conda-build
                 mkdir packages
