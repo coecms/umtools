@@ -12,4 +12,5 @@ engines:
         enabled: true
 
 exclude_paths:
+    - docs/conf.py
     - docs/_build/**/*
