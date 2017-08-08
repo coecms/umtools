@@ -40,10 +40,10 @@ jobs:
             - image: condaforge/linux-anvil
         steps:
             - attach_workspace:
-                at: /packages
+                at: /workspace
             - run: |
                 /opt/docker/bin/entrypoint /bin/bash << EOF
-                anaconda upload --token $ANACONDA_TOKEN --user $ANACONDA_USER /packages/*
+                anaconda upload --token $ANACONDA_TOKEN --user $ANACONDA_USER /workspace/packages/linux64/*.tar.bz2
                 EOF
 
 workflows:
@@ -60,5 +60,5 @@ workflows:
                     tags:
                         only: /.*/
                     branches:
-                        ignore: /.*/
+                        only: /.*/
 
