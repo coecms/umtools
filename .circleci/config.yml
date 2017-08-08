@@ -45,7 +45,7 @@ jobs:
                 at: /workspace
             - run: |
                 /opt/docker/bin/entrypoint /bin/bash << EOF
-                anaconda upload --token $ANACONDA_TOKEN --user $ANACONDA_USER /workspace/packages/*
+                anaconda upload --token \$ANACONDA_TOKEN --user \$ANACONDA_USER /workspace/packages/*
                 EOF
 
 workflows:
