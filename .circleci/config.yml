@@ -11,7 +11,8 @@ jobs:
                 conda config --add channels conda-forge
                 conda update conda conda-build
                 mkdir packages
-                conda-build conda --python=27 --output-folder packages
+                conda-build conda --python=27
+                cp $(conda-build conda --python=27 --output) packages
                 EOF
             - persist_to_workspace:
                 root: .
@@ -28,7 +29,8 @@ jobs:
                 conda config --add channels conda-forge
                 conda update conda conda-build
                 mkdir packages
-                conda-build conda --python=36 --output-folder packages
+                conda-build conda --python=36
+                cp $(conda-build conda --python=36 --output) packages
                 EOF
             - persist_to_workspace:
                 root: .
@@ -43,7 +45,7 @@ jobs:
                 at: /workspace
             - run: |
                 /opt/docker/bin/entrypoint /bin/bash << EOF
-                anaconda upload --token $ANACONDA_TOKEN --user $ANACONDA_USER /workspace/packages/linux64/*.tar.bz2
+                anaconda upload --token $ANACONDA_TOKEN --user $ANACONDA_USER /workspace/packages/*
                 EOF
 
 workflows:
