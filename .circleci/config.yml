@@ -13,7 +13,7 @@ jobs:
                 conda update conda conda-build
                 mkdir packages
                 conda-build conda --python=27
-                cp $(conda-build conda --python=27 --output) packages
+                cp $(/opt/conda/bin/conda-build conda --python=27 --output) packages
                 EOF
             - persist_to_workspace:
                 root: .
@@ -32,7 +32,7 @@ jobs:
                 conda update conda conda-build
                 mkdir packages
                 conda-build conda --python=36
-                cp $(conda-build conda --python=36 --output) packages
+                cp $(/opt/conda/bin/conda-build conda --python=36 --output) packages
                 EOF
             - persist_to_workspace:
                 root: .
