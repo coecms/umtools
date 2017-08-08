@@ -16,15 +16,17 @@
 from __future__ import print_function
 
 import iris
+iris.FUTURE.netcdf_no_unlimited = True
 import subprocess
 import tempfile
 import argparse
+import os
 
 def main():
     parser = argparse.ArgumentParser(description="Convert a slab ocean ancillary file to either netcdf or um format")
-    parser.add_argument('COMMAND', choices = ['to_netcdf', 'to_um'])
+    parser.add_argument('command', choices = ['to_netcdf', 'to_um'])
     parser.add_argument('--output','-o', help="Output file name")
-    parser.add_argument('INPUT', help="Input file name")
+    parser.add_argument('input', help="Input file name")
     args = parser.parse_args()
 
     if args.command == 'to_netcdf':
@@ -37,6 +39,7 @@ def main():
 
         try:
             to_netcdf(args.input, outfile)
+            print("Created %s"%outfile)
         except Exception:
             print("Unable to convert %s to NetCDF format"%args.input)
 
@@ -58,9 +61,9 @@ def to_netcdf(infile, outfile):
     iris.fileformats.netcdf.save(cubes, outfile)
 
 def to_um(infile, outfile):
-    with tempfile.TemporaryFile() as namelist:
+    with tempfile.TemporaryFile(mode='w+') as namelist:
 
-        namelist.write("""
+        content = """
  &nam_config
   ICAL = 2,
   ISIZE = 64,
@@ -78,7 +81,49 @@ def to_um(infile, outfile):
   LDEEPSOIL = .FALSE.
  /
 
-&nam_ausrancil
+ &nam_ozone
+ /
+
+ &nam_smow
+ /
+
+ &nam_slt
+ /
+
+ &nam_soil
+ /
+
+ &nam_veg
+ /
+
+ &nam_vegfrac
+ /
+
+ &nam_vegfunc
+ /
+
+ &nam_vegdist
+ /
+
+ &nam_sst
+ /
+
+ &nam_ice
+ /
+
+ &nam_orog
+ /
+
+ &nam_mask
+ /
+
+ &nam_lfrac
+ /
+
+ &nam_ausrmulti
+ /
+
+ &nam_ausrancil
   LAUSRANCIL = .TRUE.,
   AUSRANCIL_FILEOUT = "%(outfile)s",
   LAUSRANCIL_PERIODIC = .TRUE.,
@@ -139,18 +184,35 @@ def to_um(infile, outfile):
   IAUSRANCIL_MASK(6) = 0,
  /
 
+ &nam_ts1
+ /
+
+ &nam_flux
+ /
+
+ &nam_ousrmulti
+ /
+
+ &nam_ousrancil
+ /
+
  &nam_genanc_config
   NANCFILES = 1
  /
 
  &nam_genanc
   LGENANC_FILE(1) = .FALSE.,
+
  /
-        """%{infile: infile, outfile: outfile})
 
-        proc = subprocess.Popen(['/projects/access/bin/mkancil0.57'], stdin=namelist)
-        rcode = proc.wait()
+        """%{'infile': infile, 'outfile': outfile}
 
-        if rcode != 0:
-            raise Exception("Error in mkancil")
+        namelist.write(content)
+        namelist.flush()
+        namelist.seek(0)
 
+        with subprocess.Popen(['/projects/access/bin/mkancil0.57'], stdin=namelist, stdout=subprocess.PIPE) as proc:
+            print(proc.stdout.read().decode('ascii'))
+
+if __name__ == '__main__':
+    main()
