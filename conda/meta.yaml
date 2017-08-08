@@ -13,6 +13,7 @@ build:
     script: python setup.py install
     entry_points:
         - slabancil = umtools.slabancil:main
+        - iris2netcdf = umtools.iris2netcdf:main
 
 requirements:
     build:
