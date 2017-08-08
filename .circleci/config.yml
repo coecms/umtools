@@ -1,6 +1,6 @@
 version: 2
 jobs:
-    build:
+    python27:
         working_directory: /conda-build
         docker:
             - image: condaforge/linux-anvil
@@ -10,28 +10,57 @@ jobs:
                 /opt/docker/bin/entrypoint /bin/bash << EOF
                 conda config --add channels conda-forge
                 conda update conda conda-build
-                EOF
-            - run: |
-                /opt/docker/bin/entrypoint /bin/bash << EOF
+                mkdir packages
                 conda-build conda --python=27
+                cp $(/opt/docker/bin/entrypoint /bin/bash -c 'conda-build conda --python=27 --output') packages
                 EOF
-            - run: |
-                /opt/docker/bin/entrypoint /bin/bash << EOF
-                conda-build conda --python=35
-                EOF
-            - run: |
-                /opt/docker/bin/entrypoint /bin/bash << EOF
-                conda-build conda --python=36
-                EOF
-            - deploy:
-                command: |
-                    if [ -n "${CIRCLE_TAG}" ]; then
-                      anaconda upload --token $ANACONDA_TOKEN --user $ANACONDA_USER /opt/conda/conda-bld/linux-64/*
-                    fi
+            - persist_to_workspace:
+                root: .
+                paths: packages/*
 
-# See: https://discuss.circleci.com/t/git-tag-deploys-in-2-0/9493/8
-deployment:
-    fake_deploy_for_cci2:
-        tag: /.*/
-        commands:
-            - echo "make tags run in 2.0"
+    python36:
+        working_directory: /conda-build
+        docker:
+            - image: condaforge/linux-anvil
+        steps:
+            - checkout
+            - run: |
+                /opt/docker/bin/entrypoint /bin/bash << EOF
+                conda config --add channels conda-forge
+                conda update conda conda-build
+                mkdir packages
+                conda-build conda --python=36
+                cp $(/opt/docker/bin/entrypoint /bin/bash -c 'conda-build conda --python=36 --output') packages
+                EOF
+            - persist_to_workspace:
+                root: .
+                paths: packages/*
+
+    conda_upload:
+        working_directory: /conda-build
+        docker:
+            - image: condaforge/linux-anvil
+        steps:
+            - attach_workspace:
+                at: /workspace
+            - run: |
+                /opt/docker/bin/entrypoint /bin/bash << EOF
+                anaconda -t \$ANACONDA_TOKEN upload --user \$ANACONDA_USER /workspace/packages/*
+                EOF
+
+workflows:
+    version: 2
+    conda_build_and_upload:
+        jobs:
+            - python27
+            - python36
+            - conda_upload:
+                requires:
+                    - python27
+                    - python36
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
+
