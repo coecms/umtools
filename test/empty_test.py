@@ -15,5 +15,5 @@
 # limitations under the License.
 from __future__ import print_function
 
-def empty_test():
+def test_empty():
     assert True

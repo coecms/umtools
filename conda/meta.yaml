@@ -19,12 +19,13 @@ requirements:
     run:
         - python
         - six
+        - iris
 
 test:
     source_files:
         - setup.cfg
         - conftest.py
-        - tests
+        - test
     requires:
         - pytest
     commands:
