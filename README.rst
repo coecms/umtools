@@ -2,7 +2,7 @@
 umtools
 =============================
 
-umtools
+Miscellaneous tools for working with the Unified Model
 
 .. image:: https://readthedocs.org/projects/umtools/badge/?version=latest
   :target: https://readthedocs.org/projects/umtools/?badge=latest
@@ -16,7 +16,7 @@ umtools
   :target: https://landscape.io/github/coecms/umtools/master
 .. image:: https://codeclimate.com/github/coecms/umtools/badges/gpa.svg
   :target: https://codeclimate.com/github/coecms/umtools
-.. image:: https://badge.fury.io/py/umtools.svg
+.. # image:: https://badge.fury.io/py/umtools.svg
   :target: https://pypi.python.org/pypi/umtools
 
 .. content-marker-for-sphinx
@@ -36,6 +36,9 @@ Pip install (into a virtual environment)::
 ---
 Use
 ---
+
+* **iris2netcdf:** Convert a UM or GRIB file to CF-NetCDF format
+* **slabancil:** Convert a hierachy slab ocean ancillary to netcdf and back
 
 -------
 Develop
@@ -62,6 +65,3 @@ Build documentation::
     python setup.py build_sphinx
     firefox docs/_build/index.html
 
-Upload documentation::
-
-    git subtree push --prefix docs/_build/html/ origin gh-pages
