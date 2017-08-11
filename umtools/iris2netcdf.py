@@ -14,29 +14,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import print_function
+import iris
+import argparse
+import os
+
+iris.FUTURE.netcdf_no_unlimited = True
 
 def main():
-    parser = argparse.ArgumentParser(description="Convert a file to netcdf using Iris")
+    parser = argparse.ArgumentParser(description="Convert a file to netcdf using Iris. Multiple inputs will be merged into a single file")
     parser.add_argument('--output','-o', help="Output file name")
-    parser.add_argument('input', help="Input file name")
+    parser.add_argument('input', help="Input file name [UM/GRIB/NetCDF format]", nargs="+")
     args = parser.parse_args()
 
     if args.output:
         outfile = args.output
     else:
-        basename = os.path.basename(args.input)
+        basename = os.path.basename(args.input[0])
         (root, ext) = os.path.splitext(basename)
         outfile = root + '.nc'
 
     try:
-        convert(infile, outfile)
+        convert(args.input, outfile)
         print("Created %s"%outfile)
     except Exception:
         print("Unable to convert %s to NetCDF format"%args.input)
 
-def convert(infile, outfile):
-    cubes = iris.load(infile)
-    iris.fileformats.netcdf.save(cubes, outfile)
+def convert(infiles, outfile):
+    cubes = iris.load(infiles)
+    iris.fileformats.netcdf.save(cubes, outfile, zlib=True)
 
 if __name__ == '__main__':
     main()
