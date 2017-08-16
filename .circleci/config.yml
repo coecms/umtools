@@ -1,72 +1,80 @@
-version: 2
+version: 2.0
 jobs:
-    python27:
-        working_directory: /conda-build
+    py27:
+        working_directory: /circleci
         docker:
-            - image: condaforge/linux-anvil
+            - image: scottwales/conda-build:0.0.2
+              environment:
+                PYTHON_VER: 2.7
+
         steps:
             - checkout
-            - run: |
-                /opt/docker/bin/entrypoint /bin/bash << EOF
-                conda config --add channels conda-forge
-                conda update conda conda-build
-                mkdir packages
-                conda-build conda --python=27
-                cp $(/opt/docker/bin/entrypoint /bin/bash -c 'conda-build conda --python=27 --output') packages
-                EOF
-            - persist_to_workspace:
-                root: .
-                paths: packages/*
 
-    python36:
-        working_directory: /conda-build
+            - run: |
+                conda build conda --python=${PYTHON_VER}
+
+            - run: |
+                mkdir /artefacts
+                cp $(conda build conda --python=${PYTHON_VER} --output) /artefacts
+
+            - persist_to_workspace:
+                root: /artefacts
+                paths: '*'
+
+    py36:
+        working_directory: /circleci
         docker:
-            - image: condaforge/linux-anvil
+            - image: scottwales/conda-build:0.0.2
+              environment:
+                PYTHON_VER: 3.6
+
         steps:
             - checkout
-            - run: |
-                /opt/docker/bin/entrypoint /bin/bash << EOF
-                conda config --add channels conda-forge
-                conda update conda conda-build
-                mkdir packages
-                conda-build conda --python=36
-                cp $(/opt/docker/bin/entrypoint /bin/bash -c 'conda-build conda --python=36 --output') packages
-                EOF
-            - persist_to_workspace:
-                root: .
-                paths: packages/*
 
-    conda_upload:
-        working_directory: /conda-build
+            - run: |
+                conda build conda --python=${PYTHON_VER}
+
+            - run: |
+                mkdir /artefacts
+                cp $(conda build conda --python=${PYTHON_VER} --output) /artefacts
+
+            - persist_to_workspace:
+                root: /artefacts
+                paths: '*'
+
+    publish:
+        working_directory: /circleci
         docker:
-            - image: condaforge/linux-anvil
+            - image: scottwales/conda-build:0.0.2
         steps:
             - attach_workspace:
-                at: /workspace
-            - run: |
-                /opt/docker/bin/entrypoint /bin/bash << EOF
-                anaconda -t \$ANACONDA_TOKEN upload --user \$ANACONDA_USER /workspace/packages/*
-                EOF
+                at: /artefacts
+
+            - run:
+                anaconda --token ${ANACONDA_TOKEN} upload /artefacts
 
 workflows:
     version: 2
-    conda_build_and_upload:
+    build_and_publsh:
         jobs:
-            - python27:
+            - py27:
                 filters:
                     tags:
                         only: /.*/
-            - python36:
+
+            - py36:
                 filters:
                     tags:
                         only: /.*/
-            - conda_upload:
+
+            - publish:
                 requires:
-                    - python27
-                    - python36
+                    - py27
+                    - py36
                 filters:
                     tags:
                         only: /.*/
                     branches:
                         ignore: /.*/
+
 
