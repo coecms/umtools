@@ -23,6 +23,7 @@ iris.FUTURE.netcdf_no_unlimited = True
 def main():
     parser = argparse.ArgumentParser(description="Convert a file to netcdf using Iris. Multiple inputs will be merged into a single file")
     parser.add_argument('--output','-o', help="Output file name")
+    parser.add_argument('--compression','-C',help="Compression level",choices=range(0,10),default=4,metavar='{0-9}')
     parser.add_argument('input', help="Input file name [UM/GRIB/NetCDF format]", nargs="+")
     args = parser.parse_args()
 
@@ -34,14 +35,16 @@ def main():
         outfile = root + '.nc'
 
     try:
-        convert(args.input, outfile)
+        convert(args.input, outfile, compression=args.compression)
         print("Created %s"%outfile)
     except Exception:
         print("Unable to convert %s to NetCDF format"%args.input)
 
-def convert(infiles, outfile):
+def convert(infiles, outfile, compression_level):
+    # Do we need to compress?
+    compress = compression != 0
     cubes = iris.load(infiles)
-    iris.fileformats.netcdf.save(cubes, outfile, zlib=True)
+    iris.fileformats.netcdf.save(cubes, outfile, zlib=compress, complevel=compression_level)
 
 if __name__ == '__main__':
     main()
