@@ -35,14 +35,15 @@ def main():
         outfile = root + '.nc'
 
     try:
-        convert(args.input, outfile, compression=args.compression)
+        convert(args.input, outfile, compression_level=args.compression)
         print("Created %s"%outfile)
     except Exception:
         print("Unable to convert %s to NetCDF format"%args.input)
+        raise
 
 def convert(infiles, outfile, compression_level):
     # Do we need to compress?
-    compress = compression != 0
+    compress = compression_level != 0
     cubes = iris.load(infiles)
     iris.fileformats.netcdf.save(cubes, outfile, zlib=compress, complevel=compression_level)
 
