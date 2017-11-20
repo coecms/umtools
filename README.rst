@@ -39,6 +39,7 @@ Use
 
 * **iris2netcdf:** Convert a UM or GRIB file to CF-NetCDF format
 * **slabancil:** Convert a hierachy slab ocean ancillary to netcdf and back
+* **ancil2climatology:** Select a single year from an ancillary file and convert it to periodic
 
 -------
 Develop
