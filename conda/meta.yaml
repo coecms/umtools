@@ -10,7 +10,8 @@ source:
     git_url: ../
 
 build:
-    script: python setup.py install
+    script: "{{ PYTHON }} -m pip install . --no-deps"
+    noarch: python
     entry_points:
         - slabancil = umtools.slabancil:main
         - iris2netcdf = umtools.iris2netcdf:main
@@ -18,6 +19,7 @@ build:
 requirements:
     build:
         - python
+        - pip
         - pbr
     run:
         - python
