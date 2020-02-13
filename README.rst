@@ -6,18 +6,8 @@ Miscellaneous tools for working with the Unified Model
 
 .. image:: https://readthedocs.org/projects/umtools/badge/?version=latest
   :target: https://readthedocs.org/projects/umtools/?badge=latest
-.. image:: https://travis-ci.org/coecms/umtools.svg?branch=master
-  :target: https://travis-ci.org/coecms/umtools
 .. image:: https://circleci.com/gh/coecms/umtools.svg?style=shield
   :target: https://circleci.com/gh/coecms/umtools
-.. image:: http://codecov.io/github/coecms/umtools/coverage.svg?branch=master
-  :target: http://codecov.io/github/coecms/umtools?branch=master
-.. image:: https://landscape.io/github/coecms/umtools/master/landscape.svg?style=flat
-  :target: https://landscape.io/github/coecms/umtools/master
-.. image:: https://codeclimate.com/github/coecms/umtools/badges/gpa.svg
-  :target: https://codeclimate.com/github/coecms/umtools
-.. # image:: https://badge.fury.io/py/umtools.svg
-  :target: https://pypi.python.org/pypi/umtools
 
 .. content-marker-for-sphinx
 
