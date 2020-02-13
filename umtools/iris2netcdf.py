@@ -15,10 +15,9 @@
 # limitations under the License.
 from __future__ import print_function
 import iris
+import tqdm
 import argparse
 import os
-
-iris.FUTURE.netcdf_no_unlimited = True
 
 def main():
     parser = argparse.ArgumentParser(description="Convert a file to netcdf using Iris. Multiple inputs will be merged into a single file")
@@ -35,17 +34,33 @@ def main():
         outfile = root + '.nc'
 
     try:
-        convert(args.input, outfile, compression_level=args.compression)
+        cubes = iris.load(args.input)
+
+        save_netcdf(cubes, outfile, compression=args.compression)
         print("Created %s"%outfile)
     except Exception:
         print("Unable to convert %s to NetCDF format"%args.input)
         raise
 
-def convert(infiles, outfile, compression_level):
-    # Do we need to compress?
-    compress = compression_level != 0
-    cubes = iris.load(infiles)
-    iris.fileformats.netcdf.save(cubes, outfile, zlib=compress, complevel=compression_level)
+def save_netcdf(cubes, path, compression=4):
+    """
+    Save Iris cubes to netcdf, with chunking and compression
+    """
+
+    with iris.fileformats.netcdf.Saver(path, 'NETCDF4') as saver:
+        for c in tqdm.tqdm(cubes):
+            # Make sure time is a real dimension
+            if len(c.coords('time', dim_coords=False)) != 0:
+                c = iris.util.new_axis(c, 'time')
+
+            if c.has_lazy_data():
+                da = c.core_data()
+                chunks = [c if c < 1000 else 1000 for c in da.chunksize]
+            else:
+                chunks = da.shape
+
+            saver.write(c, unlimited_dimensions='time',
+                    chunksizes=chunks, zlib=True, complevel=compression, shuffle=True)
 
 if __name__ == '__main__':
     main()
