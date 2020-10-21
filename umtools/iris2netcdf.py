@@ -18,7 +18,7 @@ import iris
 import tqdm
 import argparse
 import os
-from genmeta import standard_meta
+from .genmeta import standard_meta
 import sys
 from datetime import datetime
 
