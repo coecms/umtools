@@ -33,8 +33,11 @@ test:
         - test
     requires:
         - pytest
+        - coverage
+    script_env:
+        - TEST_OUTPUT
     commands:
-        - py.test
+        - COVERAGE_FILE=${TEST_OUTPUT:-.}/coverage coverage run --source umtools -m pytest ./test --pyargs umtools --junit-xml=${TEST_OUTPUT:-.}/pytest/junit.xml
 
 about:
     home: https://github.com/coecms/umtools
