@@ -18,11 +18,15 @@ import iris
 import tqdm
 import argparse
 import os
+from genmeta import standard_meta
+import sys
+from datetime import datetime
 
 def main():
     parser = argparse.ArgumentParser(description="Convert a file to netcdf using Iris. Multiple inputs will be merged into a single file")
     parser.add_argument('--output','-o', help="Output file name")
     parser.add_argument('--compression','-C',help="Compression level",choices=range(0,10),default=4,metavar='{0-9}',type=int)
+    parser.add_argument('--bounds',help="Guess bounds",action='store_true')
     parser.add_argument('input', help="Input file name [UM/GRIB/NetCDF format]", nargs="+")
     args = parser.parse_args()
 
@@ -33,8 +37,29 @@ def main():
         (root, ext) = os.path.splitext(basename)
         outfile = root + '.nc'
 
+    meta = standard_meta()
+
+    history = f'{datetime.utcnow().isoformat()}: {" ".join(sys.argv)}'
+
     try:
         cubes = iris.load(args.input)
+
+        for c in cubes:
+            c_meta = meta.get(str(c.attributes['STASH']), None)
+            if c_meta is not None:
+                exclude_keys = ['standard_name', 'long_name', 'var_name', 'units']
+                c.attributes.update({k:v for k,v in c_meta.items() if k not in exclude_keys})
+
+                for x in exclude_keys:
+                    if x in c_meta:
+                        setattr(c, x, c_meta[x])
+
+                if args.bounds:
+                    c.coord('latitude').guess_bounds()
+                    c.coord('longitude').guess_bounds()
+
+                c.attributes['history'] = history
+                print(c)
 
         save_netcdf(cubes, outfile, compression=args.compression)
         print("Created %s"%outfile)
@@ -59,7 +84,7 @@ def save_netcdf(cubes, path, compression=4):
             else:
                 chunks = da.shape
 
-            saver.write(c, unlimited_dimensions='time',
+            saver.write(c, local_keys=['stash_description', 'stash_help'], unlimited_dimensions='time',
                     chunksizes=chunks, zlib=True, complevel=compression, shuffle=True)
 
 if __name__ == '__main__':
