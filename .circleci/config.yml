@@ -11,6 +11,8 @@ jobs:
             - run: |
                 mkdir -p ${TEST_OUTPUT}
                 conda build ./conda -c conda-forge -c coecms
+            - run:
+                cp $(conda build ./conda --output) ${TEST_OUTPUT}
             - run: 
                 name: Upload codecov
                 command: |
@@ -43,10 +45,31 @@ jobs:
                 command: mypy
                 when: always
 
+    publish:
+        docker:
+            - image: continuumio/miniconda3
+        steps:
+            - attach_workspace:
+                at: /tmp/artefacts
+
+            - run: |
+                anaconda --token "${ANACONDA_TOKEN}" upload --user "${ANACONDA_USER}" /tmp/artefacts/*.tar.bz2
+
 workflows:
     version: 2
     ci-check:
         jobs:
             - black-check
             - mypy-check
-            - build
+            - build:
+                filters:
+                    tags:
+                        only: /.*/
+            - publish:
+                requires:
+                    - build
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
