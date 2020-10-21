@@ -60,7 +60,7 @@ workflows:
     ci-check:
         jobs:
             - black-check
-            - mypy-check
+            # - mypy-check
             - build:
                 filters:
                     tags:
