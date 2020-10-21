@@ -18,25 +18,26 @@ from iris.fileformats.um_cf_map import STASH_TO_CF
 from yaml import dump, CDumper as Dumper
 from stashvar import atm_stashvar
 
-stashmeta = '/scratch/access/umdir/vn11.5/ctldata/STASHmaster/STASHmaster-meta.conf'
+stashmeta = "/scratch/access/umdir/vn11.5/ctldata/STASHmaster/STASHmaster-meta.conf"
+
 
 def standard_meta():
     meta = {}
 
     for line in open(stashmeta):
         line = line.strip()
-        
-        if line.startswith('['):
-            section = line[len('[stashmaster:'):-1]
+
+        if line.startswith("["):
+            section = line[len("[stashmaster:") : -1]
             meta[section] = {}
             continue
 
-        parts = line.split('=')
+        parts = line.split("=")
         if len(parts) == 1:
             continue
 
-        if parts[0] != '':
-            key = 'stash_' + parts[0]
+        if parts[0] != "":
+            key = "stash_" + parts[0]
             meta[section][key] = parts[1]
         else:
             meta[section][key] += "\n" + parts[1]
@@ -44,20 +45,21 @@ def standard_meta():
     codes = {}
 
     for key, value in meta.items():
-        if key.startswith('code('):
-            lbuser4 = int(key[len('code('):-1])
+        if key.startswith("code("):
+            lbuser4 = int(key[len("code(") : -1])
 
-            stash = f'm01s{lbuser4//1000:02d}i{lbuser4%1000:03d}'
+            stash = f"m01s{lbuser4//1000:02d}i{lbuser4%1000:03d}"
             codes[stash] = value
 
-            short_name = atm_stashvar.get(lbuser4, ["","","","",""])[1] 
+            short_name = atm_stashvar.get(lbuser4, ["", "", "", "", ""])[1]
             if short_name != "":
-                codes[stash]['var_name'] = short_name
-            short_name = atm_stashvar.get(lbuser4, ["","","","",""])[4]
+                codes[stash]["var_name"] = short_name
+            short_name = atm_stashvar.get(lbuser4, ["", "", "", "", ""])[4]
             if short_name != "":
-                codes[stash]['var_name'] = short_name
+                codes[stash]["var_name"] = short_name
 
     return codes
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     print(dump(codes, Dumper=Dumper))

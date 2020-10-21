@@ -21,8 +21,10 @@ import mule
 import argparse
 import numpy
 
+
 def no_validate(*args, **kwargs):
     pass
+
 
 class OverrideOp(mule.DataOperator):
     def __init__(self):
@@ -34,11 +36,14 @@ class OverrideOp(mule.DataOperator):
     def transform(self, source_fields, result_field):
         return source_fields[1].get_data()
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Convert a time-series ancil file to a climatology by slicing to a selected year")
-    parser.add_argument('--year', type=int, help="Year to select")
-    parser.add_argument('input', help="Input file")
-    parser.add_argument('output', help="Output file")
+    parser = argparse.ArgumentParser(
+        description="Convert a time-series ancil file to a climatology by slicing to a selected year"
+    )
+    parser.add_argument("--year", type=int, help="Year to select")
+    parser.add_argument("input", help="Input file")
+    parser.add_argument("output", help="Output file")
     args = parser.parse_args()
 
     ff = mule.ancil.AncilFile.from_file(args.input)
@@ -50,16 +55,19 @@ def main():
 
     for field in ff.fields:
         if field.lbyr == args.year:
-            clim_fields[field.lblev*100 + field.lbmon] = field
+            clim_fields[field.lblev * 100 + field.lbmon] = field
 
     for field in ff.fields:
         if field.lbyr == args.year:
             ff_out.fields.append(field)
         else:
-            ff_out.fields.append(override([field, clim_fields[field.lblev*100+field.lbmon]]))
+            ff_out.fields.append(
+                override([field, clim_fields[field.lblev * 100 + field.lbmon]])
+            )
 
     ff_out.validate = no_validate
     ff_out.to_file(args.output)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
