@@ -16,7 +16,7 @@
 
 from iris.fileformats.um_cf_map import STASH_TO_CF
 from yaml import dump, CDumper as Dumper
-from stashvar import atm_stashvar
+from .stashvar import atm_stashvar
 
 stashmeta = "/scratch/access/umdir/vn11.5/ctldata/STASHmaster/STASHmaster-meta.conf"
 
