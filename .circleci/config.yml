@@ -1,80 +1,52 @@
-version: 2.0
+version: 2
 jobs:
-    py27:
-        working_directory: /circleci
+    build:
         docker:
-            - image: scottwales/conda-build
-              environment:
-                PYTHON_VER: 2.7
-
+            - image: continuumio/miniconda3
+        environment:
+            TEST_OUTPUT: /tmp/artifacts
         steps:
             - checkout
-
+            - run: conda install conda-build conda-verify codecov
             - run: |
-                conda build conda --python=${PYTHON_VER}
-
-            - run: |
-                mkdir /artefacts
-                cp $(conda build conda --python=${PYTHON_VER} --output) /artefacts
-
-            - persist_to_workspace:
-                root: /artefacts
-                paths: '*'
-
-    py36:
-        working_directory: /circleci
+                mkdir -p ${TEST_OUTPUT}
+                conda build ./conda -c conda-forge -c coecms
+            - run: 
+                name: Upload codecov
+                command: |
+                    coverage combine ${TEST_OUTPUT}/coverage
+                    coverage xml -o ${TEST_OUTPUT}/coverage.xml
+                    codecov -f ${TEST_OUTPUT}/coverage.xml
+                when: always
+            - store_artifacts:
+                path: /tmp/artifacts
+            - store_test_results:
+                path: /tmp/artifacts/pytest
+    black-check:
         docker:
-            - image: scottwales/conda-build
-              environment:
-                PYTHON_VER: 3.6
-
+            - image: continuumio/miniconda3
         steps:
             - checkout
-
-            - run: |
-                conda build conda --python=${PYTHON_VER}
-
-            - run: |
-                mkdir /artefacts
-                cp $(conda build conda --python=${PYTHON_VER} --output) /artefacts
-
-            - persist_to_workspace:
-                root: /artefacts
-                paths: '*'
-
-    publish:
-        working_directory: /circleci
-        docker:
-            - image: scottwales/conda-build
-        steps:
-            - attach_workspace:
-                at: /artefacts
-
+            - run: conda install black
             - run:
-                anaconda --token "${ANACONDA_TOKEN}" upload --user "${ANACONDA_USER}" /artefacts/*.tar.bz2
+                name: Checking if 'black' needs to be run
+                command: black --check --diff .
+                when: always
+    mypy-check:
+        docker:
+            - image: continuumio/miniconda3
+        steps:
+            - checkout
+            - run: conda install mypy xarray
+            - run:
+                name: Type checking with mypy
+                command: mypy
+                when: always
 
 workflows:
     version: 2
-    build_and_publsh:
+    ci-check:
         jobs:
-            - py27:
-                filters:
-                    tags:
-                        only: /.*/
-
-            - py36:
-                filters:
-                    tags:
-                        only: /.*/
-
-            - publish:
-                requires:
-                    - py27
-                    - py36
-                filters:
-                    tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
-
-
+            - black-check
+            - mypy-check
+            - build
