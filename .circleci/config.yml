@@ -13,13 +13,13 @@ jobs:
                 conda build ./conda -c conda-forge -c coecms
             - run:
                 cp $(conda build ./conda --output) ${TEST_OUTPUT}
-            - run: 
-                name: Upload codecov
-                command: |
-                    coverage combine ${TEST_OUTPUT}/coverage
-                    coverage xml -o ${TEST_OUTPUT}/coverage.xml
-                    codecov -f ${TEST_OUTPUT}/coverage.xml
-                when: always
+            #- run: 
+            #    name: Upload codecov
+            #    command: |
+            #        coverage combine ${TEST_OUTPUT}/coverage
+            #        coverage xml -o ${TEST_OUTPUT}/coverage.xml
+            #        codecov -f ${TEST_OUTPUT}/coverage.xml
+            #    when: always
             - store_artifacts:
                 path: /tmp/artifacts
             - store_test_results:
