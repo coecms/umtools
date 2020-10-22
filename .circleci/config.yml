@@ -27,7 +27,7 @@ jobs:
             - persist_to_workspace:
                 root: /tmp/artifacts
                 paths: 
-                    - *.tar.bz2
+                    - '*.tar.bz2'
     black-check:
         docker:
             - image: continuumio/miniconda3
