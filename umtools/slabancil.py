@@ -16,6 +16,7 @@
 from __future__ import print_function
 
 import iris
+
 iris.FUTURE.netcdf_no_unlimited = True
 import subprocess
 import tempfile
@@ -23,44 +24,46 @@ import argparse
 import os
 
 var_names = {
-    301 : 'qflux',
-    302 : 'mask',
-    303 : 'heat',
-    304 : 'taux',
-    305 : 'sst',
-    306 : 'pat'
+    301: "qflux",
+    302: "mask",
+    303: "heat",
+    304: "taux",
+    305: "sst",
+    306: "pat",
 }
 
 long_names = {
-    301 : 'flux correction',
-    302 : 'sea mask',
-    303 : 'flux climatology',
-    304 : 'zonal wind climatology',
-    305 : 'sea surface temperature',
-    306 : 'recharge oscillator pattern'
+    301: "flux correction",
+    302: "sea mask",
+    303: "flux climatology",
+    304: "zonal wind climatology",
+    305: "sea surface temperature",
+    306: "recharge oscillator pattern",
 }
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Convert a slab ocean ancillary file to either netcdf or um format")
-    parser.add_argument('command', choices = ['to_netcdf', 'to_um'])
-    parser.add_argument('--output','-o', help="Output file name")
-    parser.add_argument('input', help="Input file name")
+    parser = argparse.ArgumentParser(
+        description="Convert a slab ocean ancillary file to either netcdf or um format"
+    )
+    parser.add_argument("command", choices=["to_netcdf", "to_um"])
+    parser.add_argument("--output", "-o", help="Output file name")
+    parser.add_argument("input", help="Input file name")
     args = parser.parse_args()
 
-    if args.command == 'to_netcdf':
+    if args.command == "to_netcdf":
         if args.output:
             outfile = args.output
         else:
             basename = os.path.basename(args.input)
             (root, ext) = os.path.splitext(basename)
-            outfile = root + '.nc'
+            outfile = root + ".nc"
 
         try:
             to_netcdf(args.input, outfile)
-            print("Created %s"%outfile)
+            print("Created %s" % outfile)
         except Exception:
-            print("Unable to convert %s to NetCDF format"%args.input)
+            print("Unable to convert %s to NetCDF format" % args.input)
 
     else:
         if args.output:
@@ -68,24 +71,30 @@ def main():
         else:
             basename = os.path.basename(args.input)
             (root, ext) = os.path.splitext(basename)
-            outfile = root + '.ancil'
+            outfile = root + ".ancil"
 
         try:
             to_um(args.input, outfile)
         except Exception as e:
-            print("Unable to convert %s to UM format"%args.input)
+            print("Unable to convert %s to UM format" % args.input)
+
+
 #            raise e
+
 
 def to_netcdf(infile, outfile):
     cubes = iris.load(infile)
     for cube in cubes:
-        secitem = cube.attributes['STASH'].section * 1000 + cube.attributes['STASH'].item
+        secitem = (
+            cube.attributes["STASH"].section * 1000 + cube.attributes["STASH"].item
+        )
         cube.var_name = var_names[secitem]
         cube.long_name = long_names[secitem]
     iris.fileformats.netcdf.save(cubes, outfile)
 
+
 def to_um(infile, outfile):
-    with tempfile.TemporaryFile(mode='w+') as namelist:
+    with tempfile.TemporaryFile(mode="w+") as namelist:
 
         content = """
  &nam_config
@@ -229,21 +238,26 @@ def to_um(infile, outfile):
 
  /
 
-        """%{'infile': infile, 'outfile': outfile,
-             'var_name301' : var_names[301],
-             'var_name302' : var_names[302],
-             'var_name303' : var_names[303],
-             'var_name304' : var_names[304],
-             'var_name305' : var_names[305],
-             'var_name306' : var_names[306]
-             }
+        """ % {
+            "infile": infile,
+            "outfile": outfile,
+            "var_name301": var_names[301],
+            "var_name302": var_names[302],
+            "var_name303": var_names[303],
+            "var_name304": var_names[304],
+            "var_name305": var_names[305],
+            "var_name306": var_names[306],
+        }
 
         namelist.write(content)
         namelist.flush()
         namelist.seek(0)
 
-        with subprocess.Popen(['/projects/access/bin/mkancil0.57'], stdin=namelist, stdout=subprocess.PIPE) as proc:
-            print(proc.stdout.read().decode('ascii'))
+        with subprocess.Popen(
+            ["/projects/access/bin/mkancil0.57"], stdin=namelist, stdout=subprocess.PIPE
+        ) as proc:
+            print(proc.stdout.read().decode("ascii"))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -8,17 +8,25 @@ Extract a year of data from a UM ancil file, and use it to create a new periodic
 import mule
 import argparse
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Extract a year from an ancillary file as a periodic ancil")
-    parser.add_argument('input', type=argparse.FileType('rb'), help="Input ancil file")
-    parser.add_argument('--year', type=int, help="Year to extract", required=True)
-    parser.add_argument('--output', type=argparse.FileType('wb'), help="Output ancil file", required=True)
+    parser = argparse.ArgumentParser(
+        description="Extract a year from an ancillary file as a periodic ancil"
+    )
+    parser.add_argument("input", type=argparse.FileType("rb"), help="Input ancil file")
+    parser.add_argument("--year", type=int, help="Year to extract", required=True)
+    parser.add_argument(
+        "--output",
+        type=argparse.FileType("wb"),
+        help="Output ancil file",
+        required=True,
+    )
 
     args = parser.parse_args()
 
     infile = mule.ancil.AncilFile.from_file(args.input)
     outfile = infile.copy()
-    outfile.fixed_length_header.time_type = 2 # Periodic
+    outfile.fixed_length_header.time_type = 2  # Periodic
 
     for f in infile.fields:
         # Select fields where the year matches the target year
@@ -28,5 +36,6 @@ def main():
     outfile.level_dependent_constants = None
     outfile.to_file(args.output)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
