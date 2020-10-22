@@ -24,6 +24,9 @@ jobs:
                 path: /tmp/artifacts
             - store_test_results:
                 path: /tmp/artifacts/pytest
+            - persist_to_workspace:
+                root: /tmp/artifacts
+                paths: *.tar.bz2
     black-check:
         docker:
             - image: continuumio/miniconda3
