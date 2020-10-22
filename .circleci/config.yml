@@ -52,6 +52,7 @@ jobs:
             - attach_workspace:
                 at: /tmp/artefacts
 
+            - run: conda install anaconda-client
             - run: |
                 anaconda --token "${ANACONDA_TOKEN}" upload --user "${ANACONDA_USER}" /tmp/artefacts/*.tar.bz2
 
