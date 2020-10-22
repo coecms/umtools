@@ -31,7 +31,7 @@ class RotatePoleOp(mule.DataOperator):
         if self.lat is not None:
             field.bplat = self.lat
         if self.lon is not None:
-            field.bplat = self.lon
+            field.bplon = self.lon
         return field
 
     def transform(self, source_field, new_field):
