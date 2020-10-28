@@ -15,6 +15,7 @@ build:
     entry_points:
         - slabancil = umtools.slabancil:main
         - iris2netcdf = umtools.iris2netcdf:main
+        - umtool = umtools.umtool:main
 
 requirements:
     build:
