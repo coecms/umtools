@@ -62,7 +62,17 @@ def regrid_cable(mf_target, mf_source):
 
 
 class Tool(base.Tool):
-    name = 'regrid_cable'
+    """
+    Regrid the CABLE fields in an ACCESS-CM2 restart
+
+    For most fields the UM reconfiguration accurately regrids, but specifics of
+    CABLE implementation prevent this for STASH fields 800-899. This tool regrids
+    these fields from a SOURCE UM file, with the remaining fields coming from TARGET
+    (which is presumably the output of running the reconfiguration on SOURCE).
+    """
+
+    name = 'regrid_cm2_cable'
+    help = 'Regrid ACCESS-CM2 CABLE fields'
 
     def parser_args(self, parser):
         parser.add_argument("target", help="Input UM file", type=argparse.FileType("r"))

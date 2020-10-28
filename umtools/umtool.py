@@ -26,8 +26,9 @@ def main():
         regrid_cable.Tool(),
         ]
 
-    parser = argparse.ArgumentParser(description=__doc__)
-    subp = parser.add_subparsers()
+    parser = argparse.ArgumentParser(description=__doc__, 
+            formatter_class = argparse.RawDescriptionHelpFormatter)
+    subp = parser.add_subparsers(metavar='TOOL')
 
     for t in tools:
         t.subparser(subp)

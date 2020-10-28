@@ -15,19 +15,28 @@
 # limitations under the License.
 
 import argparse
+import textwrap
 
 class Tool():
+    """
+    Base class for tools working with UM files, handles arguments etc.
+
+    Users should replace parser_args, which adds argparse arguments, and
+    __call__ which runs the tool, then add the subclass to the list in
+    umtool.py
+    """
 
     def __init__(self):
         pass
 
     def subparser(self, subp):
-        parser = subp.add_parser(self.name, description=__doc__)
+        parser = subp.add_parser(self.name, description=textwrap.dedent(self.__doc__), help=self.help, formatter_class = argparse.RawDescriptionHelpFormatter)
         self.parser_args(parser)
         parser.set_defaults(func=self)
 
     def main(self):
-        parser = argparse.ArgumentParser(description=__doc__)
+        parser = argparse.ArgumentParser(description=textwrap.dedent(self.__doc__),
+            formatter_class = argparse.RawDescriptionHelpFormatter)
         self.parser_args(parser)
 
         args = parser.parse_args()
