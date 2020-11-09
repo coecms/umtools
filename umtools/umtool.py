@@ -35,6 +35,10 @@ def main():
 
     args = parser.parse_args()
 
+    if 'func' not in args:
+        parser.print_help()
+        return
+
     args.func(args)
 
 if __name__ == '__main__':

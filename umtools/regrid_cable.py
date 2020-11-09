@@ -84,7 +84,9 @@ class Tool(base.Tool):
         mf_target = mule.load_umfile(args.target)
         mf_source = mule.load_umfile(args.source)
         out = regrid_cable(mf_target, mf_source)
-        utils.mule_write_with_replace(out, args.output)
+        out.validate = lambda *args, **kwargs: None
+        #utils.mule_write_with_replace(out, args.output)
+        out.to_file(args.output)
 
 
 
