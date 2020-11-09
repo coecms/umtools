@@ -21,25 +21,28 @@ Utilities for working with UM files
 from . import regrid_cable
 import argparse
 
+
 def main():
     tools = [
         regrid_cable.Tool(),
-        ]
+    ]
 
-    parser = argparse.ArgumentParser(description=__doc__, 
-            formatter_class = argparse.RawDescriptionHelpFormatter)
-    subp = parser.add_subparsers(metavar='TOOL')
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    subp = parser.add_subparsers(metavar="TOOL")
 
     for t in tools:
         t.subparser(subp)
 
     args = parser.parse_args()
 
-    if 'func' not in args:
+    if "func" not in args:
         parser.print_help()
         return
 
     args.func(args)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

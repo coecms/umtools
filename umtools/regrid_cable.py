@@ -48,12 +48,11 @@ def regrid_cable(mf_target, mf_source):
         if f.lbuser4 == 801:
             regrid_ops.append(RegridOp(target_mask, f, mask_value=0))
 
-
     for f in mf_target.fields:
         if f.lbuser4 > 800 and f.lbuser4 < 900:
             source = source_fields.pop(0)
 
-            op = regrid_ops[f.lbuser5-1]
+            op = regrid_ops[f.lbuser5 - 1]
             regridded = op([f, source])
             out.fields.append(regridded)
         else:
@@ -72,12 +71,14 @@ class Tool(base.Tool):
     (which is presumably the output of running the reconfiguration on SOURCE).
     """
 
-    name = 'regrid_cm2_cable'
-    help = 'Regrid ACCESS-CM2 CABLE fields'
+    name = "regrid_cm2_cable"
+    help = "Regrid ACCESS-CM2 CABLE fields"
 
     def parser_args(self, parser):
         parser.add_argument("target", help="Input UM file", type=argparse.FileType("r"))
-        parser.add_argument("source", help="UM file with fields to regrid", type=argparse.FileType("r"))
+        parser.add_argument(
+            "source", help="UM file with fields to regrid", type=argparse.FileType("r")
+        )
         parser.add_argument("--output", help="Output UM file", required=True)
 
     def __call__(self, args):
@@ -85,14 +86,14 @@ class Tool(base.Tool):
         mf_source = mule.load_umfile(args.source)
         out = regrid_cable(mf_target, mf_source)
         out.validate = lambda *args, **kwargs: None
-        #utils.mule_write_with_replace(out, args.output)
+        # utils.mule_write_with_replace(out, args.output)
         out.to_file(args.output)
-
 
 
 if __name__ == "__main__":
     import argparse
     import os
-    os.environ['UMDIR'] = '/projects/access/umdir'
+
+    os.environ["UMDIR"] = "/projects/access/umdir"
 
     Tool().main()

@@ -18,6 +18,7 @@ from .utils import mule_field_to_xarray
 import climtas
 import mule
 
+
 class RegridOp(mule.DataOperator):
     """
     Regrids fields from one UM file to another
@@ -32,7 +33,8 @@ class RegridOp(mule.DataOperator):
     All 'b' fields should be on the same grid as 'source_mask'
     All 'a' fields should be on the same grid as 'target_mask'
     """
-    def __init__(self, target, source, mask_value=0, method='bilinear'):
+
+    def __init__(self, target, source, mask_value=0, method="bilinear"):
         """
 
         Args:
@@ -56,13 +58,11 @@ class RegridOp(mule.DataOperator):
             self.regrid = None
             return
 
-        self.source_da.to_netcdf('a.nc')
+        self.source_da.to_netcdf("a.nc")
 
         weights = climtas.regrid.esmf_generate_weights(
-                self.source_da,
-                self.target_da,
-                method=method,
-                extrap_method='nearestidavg')
+            self.source_da, self.target_da, method=method, extrap_method="nearestidavg"
+        )
 
         self.regrid = climtas.regrid.Regridder(weights=weights)
 
@@ -81,5 +81,3 @@ class RegridOp(mule.DataOperator):
             return self.regrid.regrid(da).values
         else:
             return source_field.get_data() * 0
-
-

@@ -17,7 +17,8 @@
 import argparse
 import textwrap
 
-class Tool():
+
+class Tool:
     """
     Base class for tools working with UM files, handles arguments etc.
 
@@ -30,13 +31,20 @@ class Tool():
         pass
 
     def subparser(self, subp):
-        parser = subp.add_parser(self.name, description=textwrap.dedent(self.__doc__), help=self.help, formatter_class = argparse.RawDescriptionHelpFormatter)
+        parser = subp.add_parser(
+            self.name,
+            description=textwrap.dedent(self.__doc__),
+            help=self.help,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+        )
         self.parser_args(parser)
         parser.set_defaults(func=self)
 
     def main(self):
-        parser = argparse.ArgumentParser(description=textwrap.dedent(self.__doc__),
-            formatter_class = argparse.RawDescriptionHelpFormatter)
+        parser = argparse.ArgumentParser(
+            description=textwrap.dedent(self.__doc__),
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+        )
         self.parser_args(parser)
 
         args = parser.parse_args()
