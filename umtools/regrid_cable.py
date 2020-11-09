@@ -15,9 +15,10 @@
 # limitations under the License.
 
 import mule
-from regrid import RegridOp
-import base
+from .regrid import RegridOp
+from . import base
 import argparse
+from . import utils
 
 
 def regrid_cable(mf_target, mf_source):
@@ -83,7 +84,7 @@ class Tool(base.Tool):
         mf_target = mule.load_umfile(args.target)
         mf_source = mule.load_umfile(args.source)
         out = regrid_cable(mf_target, mf_source)
-        out.to_file(args.output)
+        utils.mule_write_with_replace(out, args.output)
 
 
 

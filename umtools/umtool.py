@@ -18,7 +18,7 @@
 Utilities for working with UM files
 """
 
-import regrid_cable
+from . import regrid_cable
 import argparse
 
 def main():

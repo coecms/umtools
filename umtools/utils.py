@@ -17,6 +17,8 @@
 import xarray
 import numpy
 from iris.fileformats.um_cf_map import STASH_TO_CF
+import tempfile
+import shutil
 
 def mule_field_to_xarray(field):
     """
@@ -61,3 +63,14 @@ def mule_field_to_xarray(field):
     da.lon.encoding['_FillValue'] = None
 
     return da
+
+
+def mule_write_with_replace(mf, path):
+    """
+    Safely write out a mule file when it potentially replaces itself
+    """
+    with tempfile.NamedTemporaryFile() as f:
+        mf.to_file(f)
+
+        shutil.copy2(f.name, path)
+
