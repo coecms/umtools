@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="umtools",
-    packages=find_packages("umtools"),
+    packages=find_packages("."),
     install_requires=[],
     entry_points={
         "console_scripts": [
