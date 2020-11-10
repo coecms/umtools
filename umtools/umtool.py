@@ -18,12 +18,13 @@
 Utilities for working with UM files
 """
 
-from . import regrid_cable
+from . import regrid_cable, regrid
 import argparse
 
 
 def main():
     tools = [
+        regrid.Tool(),
         regrid_cable.Tool(),
     ]
 

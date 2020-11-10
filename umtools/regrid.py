@@ -17,6 +17,9 @@
 from .utils import mule_field_to_xarray
 import climtas
 import mule
+from . import base
+import argparse
+import numpy
 
 
 class RegridOp(mule.DataOperator):
@@ -47,9 +50,6 @@ class RegridOp(mule.DataOperator):
         self.source_da = mule_field_to_xarray(source)
         self.target_da = mule_field_to_xarray(target)
 
-        print(self.source_da)
-        print(self.target_da)
-
         if mask_value is not None:
             self.source_da = self.source_da.where(self.source_da != mask_value)
             self.target_da = self.target_da.where(self.target_da != mask_value)
@@ -58,26 +58,78 @@ class RegridOp(mule.DataOperator):
             self.regrid = None
             return
 
-        self.source_da.to_netcdf("a.nc")
-
         weights = climtas.regrid.esmf_generate_weights(
             self.source_da, self.target_da, method=method, extrap_method="nearestidavg"
         )
 
         self.regrid = climtas.regrid.Regridder(weights=weights)
+        self.shape = self.regrid.weights.dst_grid_dims.values[::-1]
 
-    def new_field(self, source):
-        source_field, data_field = source
-
+    def new_field(self, source_field):
         field = source_field.copy()
+
+        field.lbrow = self.shape[0]
+        field.lbnpt = self.shape[1]
+
         return field
 
-    def transform(self, source, new_field):
-        source_field, data_field = source
+    def transform(self, source_field, new_field):
 
-        da = mule_field_to_xarray(data_field)
+        da = mule_field_to_xarray(source_field)
 
         if self.regrid is not None:
             return self.regrid.regrid(da).values
         else:
-            return source_field.get_data() * 0
+            return numpy.zeros(self.shape)
+
+
+def regrid(target, source):
+    """
+    Regrid the fields in 'source' to match the grid of 'target'
+    """
+
+    out = target.copy()
+
+    op = RegridOp(target.fields[0], source.fields[0], mask_value=None)
+
+    for f in source.fields:
+        out.fields.append(op(f))
+
+    return out
+
+
+class Tool(base.Tool):
+    """
+    Regrid fields in a UM file
+    """
+
+    name = "regrid"
+    help = "Regrid all UM fields"
+
+    def parser_args(self, parser):
+        parser.add_argument(
+            "target",
+            help="UM file on target grid (e.g. land mask)",
+            type=argparse.FileType("r"),
+        )
+        parser.add_argument(
+            "source", help="UM file with fields to regrid", type=argparse.FileType("r")
+        )
+        parser.add_argument("--output", help="Output UM file", required=True)
+
+    def __call__(self, args):
+        mf_target = mule.load_umfile(args.target)
+        mf_source = mule.load_umfile(args.source)
+        out = regrid(mf_target, mf_source)
+        out.validate = lambda *args, **kwargs: None
+        # utils.mule_write_with_replace(out, args.output)
+        out.to_file(args.output)
+
+
+if __name__ == "__main__":
+    import argparse
+    import os
+
+    os.environ["UMDIR"] = "/projects/access/umdir"
+
+    Tool().main()
