@@ -29,6 +29,7 @@ requirements:
         - mule
         - tqdm
         - xarray
+        - climtas
 
 test:
     source_files:
