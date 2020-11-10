@@ -50,6 +50,8 @@ class RegridOp(mule.DataOperator):
         self.source_da = mule_field_to_xarray(source)
         self.target_da = mule_field_to_xarray(target)
 
+        self.shape = [target.lbrow, target.lbnpt]
+
         if mask_value is not None:
             self.source_da = self.source_da.where(self.source_da != mask_value)
             self.target_da = self.target_da.where(self.target_da != mask_value)
@@ -63,7 +65,6 @@ class RegridOp(mule.DataOperator):
         )
 
         self.regrid = climtas.regrid.Regridder(weights=weights)
-        self.shape = self.regrid.weights.dst_grid_dims.values[::-1]
 
     def new_field(self, source_field):
         field = source_field.copy()

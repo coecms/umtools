@@ -53,7 +53,7 @@ def regrid_cable(mf_target, mf_source):
             source = source_fields.pop(0)
 
             op = regrid_ops[f.lbuser5 - 1]
-            regridded = op([f, source])
+            regridded = op(source)
             out.fields.append(regridded)
         else:
             out.fields.append(f)
