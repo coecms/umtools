@@ -9,9 +9,5 @@ setup(
     name="umtools",
     packages=find_packages("."),
     install_requires=[],
-    entry_points={
-        "console_scripts": [
-            "umtool=umtools.umtool:main",
-        ]
-    },
+    entry_points={"console_scripts": ["umtool=umtools.umtool:main",]},
 )
