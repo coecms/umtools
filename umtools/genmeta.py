@@ -18,7 +18,7 @@ from iris.fileformats.um_cf_map import STASH_TO_CF
 from yaml import dump, CDumper as Dumper
 from .stashvar import atm_stashvar
 
-stashmeta = "/scratch/access/umdir/vn11.5/ctldata/STASHmaster/STASHmaster-meta.conf"
+stashmeta = "/g/data/access/projects/access/umdir/vn11.5/ctldata/STASHmaster/STASHmaster-meta.conf"
 
 
 def standard_meta():
