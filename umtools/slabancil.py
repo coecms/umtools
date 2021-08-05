@@ -17,7 +17,6 @@ from __future__ import print_function
 
 import iris
 
-iris.FUTURE.netcdf_no_unlimited = True
 import subprocess
 import tempfile
 import argparse
