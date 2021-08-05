@@ -17,7 +17,6 @@ from __future__ import print_function
 
 import iris
 
-iris.FUTURE.netcdf_no_unlimited = True
 import subprocess
 import tempfile
 import argparse
@@ -41,6 +40,8 @@ long_names = {
     306: "recharge oscillator pattern",
 }
 
+mkancil_default = "/projects/access/apps/xancil/0.57/mkancil0.57"
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -48,6 +49,7 @@ def main():
     )
     parser.add_argument("command", choices=["to_netcdf", "to_um"])
     parser.add_argument("--output", "-o", help="Output file name")
+    parser.add_argument("--mkancil", default=mkancil_default, help="Path to mkancil")
     parser.add_argument("input", help="Input file name")
     args = parser.parse_args()
 
@@ -62,8 +64,9 @@ def main():
         try:
             to_netcdf(args.input, outfile)
             print("Created %s" % outfile)
-        except Exception:
+        except Exception as e:
             print("Unable to convert %s to NetCDF format" % args.input)
+            print(e)
 
     else:
         if args.output:
@@ -74,9 +77,10 @@ def main():
             outfile = root + ".ancil"
 
         try:
-            to_um(args.input, outfile)
+            to_um(args.input, outfile, args.mkancil)
         except Exception as e:
             print("Unable to convert %s to UM format" % args.input)
+            print(e)
 
 
 #            raise e
@@ -93,7 +97,7 @@ def to_netcdf(infile, outfile):
     iris.fileformats.netcdf.save(cubes, outfile)
 
 
-def to_um(infile, outfile):
+def to_um(infile, outfile, mkancil):
     with tempfile.TemporaryFile(mode="w+") as namelist:
 
         content = """
@@ -254,7 +258,7 @@ def to_um(infile, outfile):
         namelist.seek(0)
 
         with subprocess.Popen(
-            ["/projects/access/bin/mkancil0.57"], stdin=namelist, stdout=subprocess.PIPE
+            [mkancil], stdin=namelist, stdout=subprocess.PIPE
         ) as proc:
             print(proc.stdout.read().decode("ascii"))
 
