@@ -40,7 +40,8 @@ long_names = {
     306: "recharge oscillator pattern",
 }
 
-mkancil_default = '/projects/access/apps/xancil/0.57/mkancil0.57'
+mkancil_default = "/projects/access/apps/xancil/0.57/mkancil0.57"
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -80,6 +81,8 @@ def main():
         except Exception as e:
             print("Unable to convert %s to UM format" % args.input)
             print(e)
+
+
 #            raise e
 
 
